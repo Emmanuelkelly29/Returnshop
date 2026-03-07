@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Vinsmart – Shop Smart</title>
+<style>
+:root{
+  --navy:#0a1f44;--navy2:#1a3a6e;--white:#fff;
+  --off:#f7f8fc;--gold:#c8a84b;--border:#dde3f0;
+  --shadow:0 8px 32px rgba(10,31,68,.13);--radius:18px;
+  --font:"Times New Roman",Times,serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--font);background:var(--white);color:var(--navy);min-height:100vh;}
+
+/* BARS */
+#sync-bar{background:var(--navy);color:#fff;font-size:.8rem;padding:6px 16px;display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;font-family:var(--font);}
+.sdot{width:8px;height:8px;border-radius:50%;background:#4caf50;flex-shrink:0;}
+.sdot.spin{background:var(--gold);animation:blink 1s infinite;}
+.sdot.err{background:#e74c3c;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+#currency-bar{background:var(--navy2);color:rgba(255,255,255,.88);font-size:.78rem;padding:5px 16px;text-align:center;display:none;font-family:var(--font);}
+/* OFFLINE BANNER */
+#offline-bar{display:none;background:#e74c3c;color:#fff;text-align:center;font-size:.82rem;padding:8px 16px;font-family:var(--font);font-weight:700;letter-spacing:.02em;}
+#offline-bar.show{display:block;}
+
+/* HEADER */
+header{background:var(--white);border-bottom:2px solid var(--border);position:sticky;top:0;z-index:200;padding:0 5%;}
+.hdr{display:flex;align-items:center;height:70px;max-width:1300px;margin:0 auto;gap:14px;}
+.logo-wrap{flex-shrink:0;user-select:none;display:flex;align-items:center;}
+.logo-wrap svg{display:block;}
+.logo span{color:var(--gold);font-style:normal;}
+.search-bar{display:flex;align-items:center;background:var(--off);border:2px solid var(--border);border-radius:50px;padding:8px 18px;gap:8px;flex:1;max-width:360px;transition:border-color .2s;}
+.search-bar:focus-within{border-color:var(--navy2);}
+.search-bar input{border:none;background:transparent;outline:none;font-family:var(--font);font-size:.95rem;color:var(--navy);width:100%;}
+.search-bar input::placeholder{color:#aab;}
+#admin-btn{background:var(--navy);color:#fff;border:none;border-radius:50px;padding:9px 20px;font-family:var(--font);font-size:.88rem;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:background .2s;}
+#admin-btn:hover{background:var(--navy2);}
+/* ADMIN */
+#admin-panel{display:none;background:var(--off);border-bottom:2px solid var(--border);padding:24px 5%;}
+#admin-panel.open{display:block;}
+.adm{max-width:1300px;margin:0 auto;}
+.adm-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.adm-grid .full{grid-column:1/-1;}
+.adm-lbl{font-size:.76rem;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px;}
+.adm-input{width:100%;padding:10px 14px;border:2px solid var(--border);border-radius:10px;font-family:var(--font);font-size:.95rem;color:var(--navy);background:var(--white);outline:none;transition:border-color .2s;}
+.adm-input:focus{border-color:var(--navy);}
+textarea.adm-input{resize:vertical;min-height:70px;}
+.media-drop{border:2px dashed var(--border);border-radius:14px;background:var(--white);min-height:110px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden;cursor:pointer;transition:border-color .2s,background .2s;}
+.media-drop:hover{border-color:var(--navy);background:#f0f3fb;}
+.media-drop input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.media-drop-txt{text-align:center;pointer-events:none;}
+.media-drop-txt .ico{font-size:2rem;margin-bottom:4px;}
+.media-drop-txt p{font-weight:700;font-size:.88rem;color:var(--navy);}
+.media-drop-txt small{color:#8899bb;font-size:.76rem;}
+#preview-strip{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+.prev-thumb{width:72px;height:72px;border-radius:8px;overflow:hidden;position:relative;border:2px solid var(--border);}
+.prev-thumb img,.prev-thumb video{width:100%;height:100%;object-fit:cover;}
+.prev-thumb .rm{position:absolute;top:2px;right:2px;background:rgba(10,31,68,.75);color:#fff;border:none;border-radius:50%;width:18px;height:18px;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.adm-btns{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+.btn-gold{background:var(--gold);color:var(--navy);border:none;border-radius:10px;padding:12px 28px;font-family:var(--font);font-weight:700;font-size:.95rem;cursor:pointer;transition:background .2s;}
+.btn-gold:hover{background:#b8942e;}
+.btn-outline{background:transparent;border:2px solid var(--border);color:#8899bb;border-radius:10px;padding:10px 18px;font-family:var(--font);font-size:.88rem;cursor:pointer;transition:border-color .2s,color .2s;}
+.btn-outline:hover{border-color:var(--navy);color:var(--navy);}
+.adm-note{font-size:.78rem;color:#8aa;margin-top:10px;}
+#upload-prog-wrap{display:none;margin-top:12px;}
+#upload-prog-wrap p{font-size:.82rem;color:var(--navy);margin-bottom:5px;}
+.prog-outer{background:var(--border);border-radius:8px;height:10px;overflow:hidden;}
+.prog-inner{height:100%;background:var(--gold);width:0%;transition:width .3s;border-radius:8px;}
+/* MAIN */
+main{max-width:1300px;margin:0 auto;padding:36px 5% 80px;}
+.sec-title{font-family:var(--font);font-size:1.6rem;font-weight:700;font-style:italic;color:var(--navy);margin-bottom:26px;padding-bottom:12px;border-bottom:2px solid var(--border);}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:24px;}
+.loading-grid{text-align:center;padding:70px 20px;color:#8899bb;font-family:var(--font);}
+.spin-ico{font-size:2rem;animation:spin 1s linear infinite;display:inline-block;margin-bottom:10px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* CARD */
+.card{background:var(--white);border:2px solid var(--border);border-radius:var(--radius);overflow:hidden;cursor:pointer;position:relative;animation:fadeUp .4s ease both;transition:box-shadow .25s,transform .25s;}
+.card:hover:not(.sold){box-shadow:var(--shadow);transform:translateY(-5px);}
+.card.sold{opacity:.7;cursor:default;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+.card-img{width:100%;padding-top:100%;position:relative;background:var(--off);overflow:hidden;}
+.card-img img,.card-img video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .35s;}
+.card:hover:not(.sold) .card-img img{transform:scale(1.05);}
+.media-count{position:absolute;bottom:8px;right:8px;background:rgba(10,31,68,.72);color:#fff;font-size:.72rem;font-weight:700;padding:3px 8px;border-radius:20px;z-index:2;}
+.sold-ov{display:none;position:absolute;inset:0;background:rgba(10,31,68,.55);align-items:center;justify-content:center;z-index:3;}
+.card.sold .sold-ov{display:flex;}
+.sold-badge{background:var(--white);color:var(--navy);font-family:var(--font);font-size:1.1rem;font-weight:700;padding:8px 22px;border-radius:50px;letter-spacing:.08em;transform:rotate(-8deg);box-shadow:0 2px 12px rgba(0,0,0,.2);}
+.card-body{padding:13px 15px 15px;}
+.card-name{font-weight:700;font-size:.98rem;color:var(--navy);margin-bottom:3px;}
+.card-price{font-style:italic;font-size:.93rem;color:var(--navy2);margin-bottom:5px;}
+.card-meta{font-size:.76rem;color:#8899bb;display:flex;align-items:center;gap:4px;margin-bottom:10px;}
+.contact-btns{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.wa-btn,.sms-btn{display:block;text-align:center;text-decoration:none;font-weight:700;font-size:.8rem;padding:8px 4px;border-radius:9px;transition:background .2s,transform .15s;border:none;cursor:pointer;font-family:var(--font);}
+.wa-btn{background:#25D366;color:#fff;}
+.wa-btn:hover{background:#1da851;transform:translateY(-1px);}
+.sms-btn{background:var(--navy);color:#fff;}
+.sms-btn:hover{background:var(--navy2);transform:translateY(-1px);}
+.card.sold .wa-btn,.card.sold .sms-btn{background:#ccc;color:#888;pointer-events:none;}
+.admin-ctrl{display:none;margin-top:8px;}
+body.admin-mode .admin-ctrl{display:block;}
+.mgmt-btn{display:block;width:100%;margin-top:5px;background:transparent;border:1.5px solid var(--border);color:#8899bb;font-family:var(--font);font-size:.78rem;padding:6px 0;border-radius:8px;cursor:pointer;transition:border-color .2s,color .2s;}
+.mgmt-btn:hover{border-color:var(--navy);color:var(--navy);}
+.mgmt-btn.del{color:#c0392b;border-color:#f5c6c6;}
+.mgmt-btn.del:hover{border-color:#c0392b;}
+/* EMPTY */
+.empty{text-align:center;padding:80px 20px;}
+.empty .eico{font-size:3rem;margin-bottom:14px;}
+.empty h2{font-family:var(--font);font-size:1.5rem;font-weight:700;font-style:italic;color:var(--navy);margin-bottom:6px;}
+.empty p{color:#8899bb;font-size:.93rem;}
+/* MODAL */
+#modal-bg{display:none;position:fixed;inset:0;background:rgba(10,31,68,.6);z-index:500;align-items:center;justify-content:center;padding:16px;}
+#modal-bg.open{display:flex;}
+#modal{background:var(--white);border-radius:24px;max-width:880px;width:100%;max-height:94vh;overflow-y:auto;position:relative;animation:popIn .3s ease;}
+@keyframes popIn{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
+.modal-close{position:absolute;top:14px;right:14px;background:var(--off);border:none;border-radius:50%;width:36px;height:36px;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;color:var(--navy);transition:background .2s;}
+.modal-close:hover{background:var(--border);}
+.modal-body{display:grid;grid-template-columns:1fr 1fr;min-height:420px;}
+.modal-gallery{background:#111;border-radius:24px 0 0 24px;overflow:hidden;display:flex;flex-direction:column;}
+.gallery-main{flex:1;position:relative;min-height:300px;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.gallery-main img,.gallery-main video{max-width:100%;max-height:440px;object-fit:contain;display:block;}
+.sold-stamp{position:absolute;top:18px;left:50%;transform:translateX(-50%) rotate(-8deg);background:var(--white);color:var(--navy);font-family:var(--font);font-size:1.3rem;font-weight:700;padding:10px 28px;border-radius:50px;letter-spacing:.08em;box-shadow:0 4px 16px rgba(0,0,0,.3);}
+.gallery-nav{display:flex;gap:6px;padding:10px;overflow-x:auto;background:#1a1a1a;}
+.gallery-nav::-webkit-scrollbar{height:4px;}
+.gallery-nav::-webkit-scrollbar-thumb{background:#444;border-radius:4px;}
+.g-thumb{width:58px;height:58px;flex-shrink:0;border-radius:8px;overflow:hidden;cursor:pointer;border:2px solid transparent;opacity:.6;transition:opacity .2s,border-color .2s;}
+.g-thumb.active{border-color:var(--gold);opacity:1;}
+.g-thumb img,.g-thumb video{width:100%;height:100%;object-fit:cover;pointer-events:none;}
+.g-arr{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.18);backdrop-filter:blur(4px);border:none;border-radius:50%;width:36px;height:36px;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:5;color:#fff;transition:background .2s;}
+.g-arr:hover{background:rgba(255,255,255,.35);}
+.g-arr.prev{left:8px;}.g-arr.next{right:8px;}
+.modal-info{padding:30px 26px 26px;display:flex;flex-direction:column;gap:10px;overflow-y:auto;}
+.modal-sold-tag{display:inline-block;background:#f0f0f0;color:#999;font-size:.76rem;font-weight:700;padding:4px 12px;border-radius:20px;letter-spacing:.05em;width:fit-content;}
+.modal-name{font-family:var(--font);font-size:1.5rem;font-weight:700;font-style:italic;color:var(--navy);line-height:1.3;}
+.modal-price{font-style:italic;font-size:1.4rem;color:var(--navy2);font-family:var(--font);}
+.modal-price-usd{font-size:.8rem;color:#8899bb;margin-top:-4px;}
+.modal-meta{font-size:.8rem;color:#8899bb;display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
+.modal-desc{font-size:.93rem;color:var(--navy);line-height:1.7;background:var(--off);border-radius:10px;padding:12px 14px;}
+.modal-divider{border:none;border-top:2px solid var(--border);}
+.modal-cta-title{font-weight:700;font-size:.8rem;color:var(--navy);text-transform:uppercase;letter-spacing:.05em;}
+.modal-btns{display:flex;flex-direction:column;gap:9px;}
+.modal-wa,.modal-sms{display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;font-weight:700;font-size:.95rem;padding:13px;border-radius:12px;transition:background .2s;font-family:var(--font);}
+.modal-wa{background:#25D366;color:#fff;}
+.modal-wa:hover{background:#1da851;}
+.modal-sms{background:var(--navy);color:#fff;}
+.modal-sms:hover{background:var(--navy2);}
+.modal-wa.disabled,.modal-sms.disabled{background:#ccc;color:#888;pointer-events:none;}
+.modal-trust{font-size:.75rem;color:#8899bb;text-align:center;}
+/* FOOTER */
+footer{background:var(--navy);color:rgba(255,255,255,.6);text-align:center;padding:22px;font-size:.85rem;font-family:var(--font);}
+footer strong{color:#fff;}
+@media(max-width:680px){
+  .hdr{flex-wrap:wrap;height:auto;padding:12px 0;}
+  .search-bar{width:100%;max-width:100%;order:3;}
+  .adm-grid{grid-template-columns:1fr;}
+  .modal-body{grid-template-columns:1fr;}
+  .modal-gallery{border-radius:24px 24px 0 0;}
+  .modal-info{padding:18px 16px 22px;}
+  .modal-name{font-size:1.2rem;}
+  .setup-box{padding:24px 16px;}
+}
+
+/* ── CHATBOT ── */
+#chat-btn{position:fixed;bottom:28px;right:28px;z-index:800;border:none;background:none;padding:0;cursor:pointer;filter:drop-shadow(0 6px 18px rgba(10,31,68,.38));transition:transform .2s;}
+#chat-btn:hover{transform:scale(1.08);}
+#chat-btn .chat-ping{position:absolute;top:2px;right:2px;width:13px;height:13px;background:#4caf50;border-radius:50%;border:2.5px solid #fff;animation:ping 2s infinite;}
+@keyframes ping{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.45);opacity:.5}}
+#chat-label{position:fixed;bottom:34px;right:94px;z-index:800;background:var(--navy);color:#fff;font-family:var(--font);font-size:.8rem;font-weight:700;padding:7px 13px;border-radius:20px;white-space:nowrap;pointer-events:none;box-shadow:0 3px 12px rgba(10,31,68,.25);animation:labelPop 0.4s ease 1.5s both;}
+@keyframes labelPop{from{opacity:0;transform:translateX(8px)}to{opacity:1;transform:translateX(0)}}
+#chat-label::after{content:'';position:absolute;right:-7px;top:50%;transform:translateY(-50%);border:5px solid transparent;border-left-color:var(--navy);}
+#chatbox{position:fixed;bottom:94px;right:24px;z-index:800;width:340px;max-width:calc(100vw - 32px);background:var(--white);border-radius:20px;box-shadow:0 8px 40px rgba(10,31,68,.22);display:none;flex-direction:column;overflow:hidden;animation:slideChat .3s ease;}
+#chatbox.open{display:flex;}
+@keyframes slideChat{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.chat-head{background:var(--navy);padding:14px 16px;display:flex;align-items:center;gap:10px;}
+.chat-head-avatar{width:38px;height:38px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
+.chat-head-info{flex:1;}
+.chat-head-name{color:#fff;font-weight:700;font-size:.92rem;font-family:var(--font);}
+.chat-head-status{color:rgba(255,255,255,.65);font-size:.74rem;font-family:var(--font);display:flex;align-items:center;gap:4px;}
+.chat-head-status::before{content:'';width:7px;height:7px;background:#4caf50;border-radius:50%;display:inline-block;}
+.chat-close{background:transparent;border:none;color:rgba(255,255,255,.7);font-size:1.1rem;cursor:pointer;padding:0 4px;line-height:1;}
+.chat-close:hover{color:#fff;}
+.chat-msgs{flex:1;padding:14px 12px;display:flex;flex-direction:column;gap:10px;max-height:300px;overflow-y:auto;background:var(--off);}
+.chat-msgs::-webkit-scrollbar{width:4px;}
+.chat-msgs::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+.msg{max-width:85%;font-family:var(--font);font-size:.86rem;line-height:1.5;padding:9px 13px;border-radius:14px;animation:msgIn .25s ease;}
+@keyframes msgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.msg.bot{background:var(--white);color:var(--navy);border-radius:4px 14px 14px 14px;align-self:flex-start;box-shadow:0 1px 4px rgba(10,31,68,.08);}
+.msg.user{background:var(--navy);color:#fff;border-radius:14px 4px 14px 14px;align-self:flex-end;}
+.msg.typing{background:var(--white);align-self:flex-start;padding:12px 16px;}
+.typing-dots{display:flex;gap:4px;align-items:center;}
+.typing-dots span{width:7px;height:7px;background:#aab;border-radius:50%;animation:dot 1.2s infinite;}
+.typing-dots span:nth-child(2){animation-delay:.2s;}
+.typing-dots span:nth-child(3){animation-delay:.4s;}
+@keyframes dot{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
+.chat-options{padding:10px 12px;display:flex;flex-direction:column;gap:7px;background:var(--white);border-top:1px solid var(--border);}
+.chat-opt{background:var(--off);border:1.5px solid var(--border);color:var(--navy);font-family:var(--font);font-size:.83rem;padding:8px 12px;border-radius:10px;cursor:pointer;text-align:left;transition:background .2s,border-color .2s;}
+.chat-opt:hover{background:#e8ecf8;border-color:var(--navy);}
+.chat-input-row{display:flex;gap:8px;padding:10px 12px;background:var(--white);border-top:1px solid var(--border);}
+.chat-input-row input{flex:1;border:1.5px solid var(--border);border-radius:10px;padding:8px 12px;font-family:var(--font);font-size:.86rem;color:var(--navy);outline:none;transition:border-color .2s;}
+.chat-input-row input:focus{border-color:var(--navy);}
+.chat-send{background:var(--navy);color:#fff;border:none;border-radius:10px;padding:8px 14px;font-size:.9rem;cursor:pointer;transition:background .2s;}
+.chat-send:hover{background:var(--navy2);}
+.chat-cta-btns{display:flex;flex-direction:column;gap:7px;margin-top:4px;}
+.chat-cta{display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;font-weight:700;font-size:.86rem;padding:10px;border-radius:10px;font-family:var(--font);transition:background .2s;}
+.chat-cta.wa{background:#25D366;color:#fff;}
+.chat-cta.wa:hover{background:#1da851;}
+.chat-cta.sms{background:var(--navy);color:#fff;}
+.chat-cta.sms:hover{background:var(--navy2);}
+</style>
+</head>
+<body>
+
+<!-- MAIN APP (hidden until configured) -->
+<div id="app">
+  <div id="sync-bar"><span class="sdot spin" id="sdot"></span><span id="sync-msg">Connecting…</span></div>
+  <div id="offline-bar">&#9889; You're offline &mdash; showing cached listings. Changes will sync when you reconnect.</div>
+  <div id="currency-bar"><span id="cur-txt"></span></div>
+
+  <header>
+    <div class="hdr">
+      <div class="logo-wrap">
+        <svg width="160" height="44" viewBox="0 0 160 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="44" height="44" rx="12" fill="#0a1f44"/>
+          <text x="22" y="30" text-anchor="middle" font-family="Times New Roman,Times,serif" font-size="22" font-weight="900" font-style="italic" fill="#c8a84b">V</text>
+          <circle cx="36" cy="10" r="4" fill="#c8a84b" opacity="0.9"/>
+          <circle cx="36" cy="10" r="2" fill="#fff"/>
+          <text x="54" y="20" font-family="Times New Roman,Times,serif" font-size="18" font-weight="900" font-style="italic" fill="#0a1f44">Vin</text><text x="82" y="20" font-family="Times New Roman,Times,serif" font-size="18" font-weight="900" fill="#c8a84b">smart</text>
+          <text x="54" y="36" font-family="Times New Roman,Times,serif" font-size="9" fill="#8899bb" letter-spacing="2">SHOP SMART</text>
+          <line x1="54" y1="23" x2="155" y2="23" stroke="#dde3f0" stroke-width="1"/>
+        </svg>
+      </div>
+      <div class="search-bar">
+        <span>🔍</span>
+        <input type="text" id="search-input" placeholder="Search products…"/>
+      </div>
+      <button id="admin-btn" onclick="toggleAdmin()">⚙ Manage Listings</button>
+    </div>
+  </header>
+
+  <div id="admin-panel">
+    <div class="adm">
+      <div class="adm-grid">
+        <div>
+          <label class="adm-lbl">Product Name</label>
+          <input class="adm-input" type="text" id="a-name" placeholder="e.g. iPhone 14 Pro"/>
+        </div>
+        <div>
+          <label class="adm-lbl">Price (USD $)</label>
+          <input class="adm-input" type="number" id="a-price" placeholder="e.g. 350" min="0" step="0.01"/>
+        </div>
+        <div class="full">
+          <label class="adm-lbl">Description (optional)</label>
+          <textarea class="adm-input" id="a-desc" placeholder="Condition, size, colour, specs…"></textarea>
+        </div>
+        <div class="full">
+          <label class="adm-lbl">Photos &amp; Videos</label>
+          <div class="media-drop">
+            <input type="file" id="a-media" accept="image/*,video/*" multiple onchange="handleMedia(event)"/>
+            <div class="media-drop-txt">
+              <div class="ico">📷🎥</div>
+              <p>Tap to choose photos &amp; videos</p>
+              <small>Select multiple — JPG, PNG, MP4, MOV…</small>
+            </div>
+          </div>
+          <div id="preview-strip"></div>
+          <div id="upload-prog-wrap">
+            <p id="upload-prog-txt">Uploading…</p>
+            <div class="prog-outer"><div class="prog-inner" id="prog-bar"></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="adm-btns">
+        <button class="btn-gold" id="add-btn" onclick="addProduct()">+ Add Listing</button>
+        <button class="btn-outline" onclick="clearForm()">✕ Clear</button>
+        
+      </div>
+      <p class="adm-note">💡 Photos &amp; videos upload to Cloudinary — listings sync live to every device worldwide. Prices are entered in USD and shown in each buyer's local currency.</p>
+    </div>
+  </div>
+
+  <main>
+    <div class="sec-title">Available Listings</div>
+    <div id="grid-wrap"><div class="loading-grid"><div class="spin-ico">⏳</div><br>Loading listings…</div></div>
+  </main>
+
+  <footer>&copy; 2025 <strong>Vinsmart</strong>. All rights reserved. Prices shown in your local currency at live exchange rates.</footer>
+
+  <!-- BUYER MODAL -->
+  <div id="modal-bg" onclick="closeMod(event)">
+    <div id="modal">
+      <button class="modal-close" onclick="closeModal()">✕</button>
+      <div class="modal-body">
+        <div class="modal-gallery">
+          <div class="gallery-main" id="gal-main">
+            <button class="g-arr prev" id="g-prev" onclick="galStep(-1)">&#8249;</button>
+            <button class="g-arr next" id="g-next" onclick="galStep(1)">&#8250;</button>
+          </div>
+          <div class="gallery-nav" id="gal-nav"></div>
+        </div>
+        <div class="modal-info" id="modal-info"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHATBOT LABEL -->
+  <div id="chat-label">Need help? Chat with us!</div>
+
+  <!-- CHATBOT BUTTON (custom SVG icon) -->
+  <button id="chat-btn" onclick="toggleChat();hideChatLabel()" title="Chat with Vinsmart">
+    <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="32" cy="32" r="32" fill="#0a1f44"/>
+      <circle cx="32" cy="32" r="28" stroke="#c8a84b" stroke-width="2" fill="none" opacity="0.4"/>
+      <rect x="13" y="14" width="35" height="25" rx="8" fill="#ffffff"/>
+      <path d="M19 39 L15 49 L29 42" fill="#ffffff"/>
+      <circle cx="23" cy="26.5" r="2.8" fill="#c8a84b"/>
+      <circle cx="32" cy="26.5" r="2.8" fill="#0a1f44"/>
+      <circle cx="41" cy="26.5" r="2.8" fill="#c8a84b"/>
+    </svg>
+    <span class="chat-ping"></span>
+  </button>
+
+  <!-- CHATBOX -->
+  <div id="chatbox">
+    <div class="chat-head">
+      <div class="chat-head-avatar">
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+          <circle cx="11" cy="11" r="11" fill="#0a1f44"/>
+          <text x="11" y="15.5" text-anchor="middle" font-family="Times New Roman,serif" font-size="10" font-weight="900" font-style="italic" fill="#c8a84b">VS</text>
+        </svg>
+      </div>
+      <div class="chat-head-info">
+        <div class="chat-head-name">Vinsmart Support</div>
+        <div class="chat-head-status">Online — reply in minutes</div>
+      </div>
+      <button class="chat-close" onclick="toggleChat()">&#10005;</button>
+    </div>
+    <div class="chat-msgs" id="chat-msgs"></div>
+    <div class="chat-options" id="chat-options" style="display:flex;flex-direction:column;gap:7px;padding:10px 12px;background:#fff;border-top:1px solid var(--border);"></div>
+    <div class="chat-input-row" id="chat-input-row" style="display:none;gap:8px;padding:10px 12px;background:#fff;border-top:1px solid var(--border);">
+      <input type="text" id="chat-input" placeholder="Type here…" onkeydown="if(event.key==='Enter')sendUserMsg()"/>
+      <button class="chat-send" onclick="sendUserMsg()">&#10148;</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import{getFirestore,collection,addDoc,onSnapshot,doc,updateDoc,deleteDoc,query,orderBy}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const WA="2348031114594";
+const TEL="+2348031114594";
+const CFG_KEY="vs_cfg_v1";
+let db,allProducts=[],pendingFiles=[],curProd=null,galIdx=0;
+
+// CURRENCY
+const CC={NG:{c:"NGN",s:"\u20A6",f:"\uD83C\uDDF3\uD83C\uDDEC",n:"Nigerian Naira"},US:{c:"USD",s:"$",f:"\uD83C\uDDFA\uD83C\uDDF8",n:"US Dollar"},GB:{c:"GBP",s:"\u00A3",f:"\uD83C\uDDEC\uD83C\uDDE7",n:"British Pound"},DE:{c:"EUR",s:"\u20AC",f:"\uD83C\uDDE9\uD83C\uDDEA",n:"Euro"},FR:{c:"EUR",s:"\u20AC",f:"\uD83C\uDDEB\uD83C\uDDF7",n:"Euro"},IT:{c:"EUR",s:"\u20AC",f:"\uD83C\uDDEE\uD83C\uDDF9",n:"Euro"},ES:{c:"EUR",s:"\u20AC",f:"\uD83C\uDDEA\uD83C\uDDF8",n:"Euro"},GH:{c:"GHS",s:"\u20B5",f:"\uD83C\uDDEC\uD83C\uDDED",n:"Ghanaian Cedi"},KE:{c:"KES",s:"KSh",f:"\uD83C\uDDF0\uD83C\uDDEA",n:"Kenyan Shilling"},ZA:{c:"ZAR",s:"R",f:"\uD83C\uDDFF\uD83C\uDDE6",n:"South African Rand"},CA:{c:"CAD",s:"CA$",f:"\uD83C\uDDE8\uD83C\uDDE6",n:"Canadian Dollar"},AU:{c:"AUD",s:"A$",f:"\uD83C\uDDE6\uD83C\uDDFA",n:"Australian Dollar"},IN:{c:"INR",s:"\u20B9",f:"\uD83C\uDDEE\uD83C\uDDF3",n:"Indian Rupee"},CN:{c:"CNY",s:"\u00A5",f:"\uD83C\uDDE8\uD83C\uDDF3",n:"Chinese Yuan"},JP:{c:"JPY",s:"\u00A5",f:"\uD83C\uDDEF\uD83C\uDDF5",n:"Japanese Yen"},AE:{c:"AED",s:"AED",f:"\uD83C\uDDE6\uD83C\uDDEA",n:"UAE Dirham"},SA:{c:"SAR",s:"SAR",f:"\uD83C\uDDF8\uD83C\uDDE6",n:"Saudi Riyal"},BR:{c:"BRL",s:"R$",f:"\uD83C\uDDE7\uD83C\uDDF7",n:"Brazilian Real"},SG:{c:"SGD",s:"S$",f:"\uD83C\uDDF8\uD83C\uDDEC",n:"Singapore Dollar"},MY:{c:"MYR",s:"RM",f:"\uD83C\uDDF2\uD83C\uDDFE",n:"Malaysian Ringgit"},PH:{c:"PHP",s:"\u20B1",f:"\uD83C\uDDF5\uD83C\uDDED",n:"Philippine Peso"},PK:{c:"PKR",s:"\u20A8",f:"\uD83C\uDDF5\uD83C\uDDF0",n:"Pakistani Rupee"}};
+let userCur={c:"USD",s:"$",f:"🌍",n:"US Dollar"},exRate=1;
+
+function fmtPrice(usd){const v=usd*exRate;return userCur.s+(exRate>=100?Math.round(v).toLocaleString():v.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}));}
+function usdSub(usd){return userCur.c==="USD"?"":"($"+parseFloat(usd).toFixed(2)+" USD)";}
+
+function initCurrency(){
+  if(!navigator.geolocation)return;
+  navigator.geolocation.getCurrentPosition(pos=>{
+    fetch("https://api.bigdatacloud.net/data/reverse-geocode-client?latitude="+pos.coords.latitude+"&longitude="+pos.coords.longitude+"&localityLanguage=en")
+    .then(r=>r.json()).then(d=>{
+      const info=CC[d.countryCode]||{c:"USD",s:"$",f:"🌍",n:"US Dollar"};
+      userCur=info;
+      if(info.c==="USD"){showCurBar(info,"1 USD = $1.00");renderCards(allProducts);return;}
+      fetch("https://open.er-api.com/v6/latest/USD").then(r=>r.json()).then(fx=>{
+        if(fx.rates&&fx.rates[info.c]){
+          exRate=fx.rates[info.c];
+          const r="1 USD = "+info.s+(exRate>=100?Math.round(exRate).toLocaleString():exRate.toFixed(2));
+          showCurBar(info,r);renderCards(allProducts);
+          if(curProd)refreshModalInfo();
+        }
+      }).catch(()=>{});
+    }).catch(()=>{});
+  },()=>{},{timeout:8000});
+}
+
+function showCurBar(info,rate){
+  const bar=document.getElementById("currency-bar");
+  bar.style.display="block";
+  document.getElementById("cur-txt").innerHTML=info.f+" Prices in <strong>"+info.n+"</strong> &nbsp;·&nbsp; <em>"+rate+"</em>";
+}
+
+// CONFIG
+function loadCfg(){try{return JSON.parse(localStorage.getItem(CFG_KEY));}catch(e){return null;}}
+function saveCfg(c){localStorage.setItem(CFG_KEY,JSON.stringify(c));}
+
+window.saveConfig=function(){
+  const cloudName=document.getElementById("cfg-cloudName").value.trim();
+  const preset=document.getElementById("cfg-preset").value.trim();
+  const err=document.getElementById("setup-err");
+  err.style.display="none";
+  if(!cloudName||!preset){err.textContent="Please fill in both Cloudinary fields.";err.style.display="block";return;}
+  saveCfg({cloudName,preset});
+  launchApp({cloudName,preset});
+};
+
+
+function launchApp(cfg){
+  // setup screen removed — direct launch
+  const app=initializeApp({
+    apiKey:"AIzaSyDtjEJJWxpwfTwZWUIDVvU80lxig7LDu_M",
+    authDomain:"vinsmart1114.firebaseapp.com",
+    projectId:"vinsmart1114",
+    storageBucket:"vinsmart1114.firebasestorage.app",
+    messagingSenderId:"462327928205",
+    appId:"1:462327928205:web:8ee6ceb51d61d70cb359c4"
+  });
+  db=getFirestore(app);
+  window._cn=cfg.cloudName;
+  window._pr=cfg.preset;
+  startSync();
+  initCurrency();
+}
+
+// SYNC
+function startSync(){
+  setSS("Connecting to database…","spin");
+  // Show cached listings instantly while connecting
+  const cached=loadCachedProducts();
+  if(cached.length){ allProducts=cached; renderCards(allProducts); setSS("Loading latest listings…","spin"); }
+  const q=query(collection(db,"products"),orderBy("listed","desc"));
+  onSnapshot(q,snap=>{
+    allProducts=snap.docs.map(d=>({id:d.id,...d.data()}));
+    cacheProducts(allProducts);
+    renderCards(allProducts);
+    setSS("Live · "+allProducts.length+" listing"+(allProducts.length!==1?"s":"")+" synced","ok");
+  },err=>{
+    setSS("Connection error — showing cached listings","err");
+    console.error(err);
+    const cached=loadCachedProducts();
+    if(cached.length){ allProducts=cached; renderCards(allProducts); }
+  });
+}
+
+function setSS(msg,state){
+  document.getElementById("sync-msg").textContent=msg;
+  const d=document.getElementById("sdot");
+  d.className="sdot"+(state==="spin"?" spin":state==="err"?" err":"");
+}
+
+// CLOUDINARY
+async function uploadFile(file,onProgress){
+  const fd=new FormData();
+  fd.append("file",file);
+  fd.append("upload_preset",window._pr);
+  const isVid=file.type.startsWith("video");
+  const url="https://api.cloudinary.com/v1_1/"+window._cn+"/"+(isVid?"video":"image")+"/upload";
+  return new Promise((res,rej)=>{
+    const xhr=new XMLHttpRequest();
+    xhr.open("POST",url);
+    xhr.upload.onprogress=e=>{if(e.lengthComputable)onProgress(e.loaded/e.total);};
+    xhr.onload=()=>{const r=JSON.parse(xhr.responseText);if(r.secure_url)res({url:r.secure_url,type:isVid?"video":"image"});else rej(new Error(JSON.stringify(r)));};
+    xhr.onerror=()=>rej(new Error("Network error"));
+    xhr.send(fd);
+  });
+}
+
+// MEDIA
+window.handleMedia=function(e){
+  pendingFiles=Array.from(e.target.files);
+  const strip=document.getElementById("preview-strip");
+  strip.innerHTML="";
+  pendingFiles.forEach((f,i)=>{
+    const url=URL.createObjectURL(f);
+    const d=document.createElement("div");
+    d.className="prev-thumb";
+    d.innerHTML=(f.type.startsWith("video")?'<video src="'+url+'" muted></video>':'<img src="'+url+'"/>')+'<button class="rm" onclick="removeFile('+i+')">&#10005;</button>';
+    strip.appendChild(d);
+  });
+};
+window.removeFile=function(i){pendingFiles.splice(i,1);window.handleMedia({target:{files:pendingFiles}});};
+window.clearForm=function(){
+  ["a-name","a-price","a-desc"].forEach(id=>document.getElementById(id).value="");
+  document.getElementById("a-media").value="";
+  pendingFiles=[];
+  document.getElementById("preview-strip").innerHTML="";
+  document.getElementById("upload-prog-wrap").style.display="none";
+};
+
+// ADD PRODUCT
+window.addProduct=async function(){
+  const name=document.getElementById("a-name").value.trim();
+  const price=parseFloat(document.getElementById("a-price").value);
+  const desc=document.getElementById("a-desc").value.trim();
+  if(!name){alert("Please enter a product name.");return;}
+  if(isNaN(price)||price<=0){alert("Please enter a valid USD price.");return;}
+  if(!pendingFiles.length){alert("Please upload at least one photo or video.");return;}
+  const btn=document.getElementById("add-btn");
+  btn.disabled=true;btn.textContent="Uploading…";
+  const pw=document.getElementById("upload-prog-wrap");
+  const pb=document.getElementById("prog-bar");
+  const pt=document.getElementById("upload-prog-txt");
+  pw.style.display="block";
+  try{
+    const media=[];
+    for(let i=0;i<pendingFiles.length;i++){
+      pt.textContent="Uploading file "+(i+1)+" of "+pendingFiles.length+"…";
+      const r=await uploadFile(pendingFiles[i],pct=>{pb.style.width=(((i+pct)/pendingFiles.length)*100)+"%";});
+      media.push(r);
+    }
+    pt.textContent="Saving listing…";
+    await addDoc(collection(db,"products"),{name,price,desc,media,listed:Date.now(),sold:false});
+    clearForm();pw.style.display="none";pb.style.width="0%";
+  }catch(e){alert("Upload error: "+e.message);console.error(e);}
+  finally{btn.disabled=false;btn.textContent="+ Add Listing";}
+};
+
+window.toggleSold=async function(id){
+  const p=allProducts.find(x=>x.id===id);
+  if(p)await updateDoc(doc(db,"products",id),{sold:!p.sold});
+};
+window.deleteProduct=async function(id){
+  if(!confirm("Remove this listing permanently?"))return;
+  await deleteDoc(doc(db,"products",id));
+  if(curProd&&curProd.id===id)closeModal();
+};
+
+// RENDER
+function renderCards(prods){
+  const wrap=document.getElementById("grid-wrap");
+  const q=document.getElementById("search-input").value.toLowerCase();
+  const filtered=q?prods.filter(p=>p.name.toLowerCase().includes(q)):prods;
+  if(!filtered.length){
+    wrap.innerHTML='<div class="empty"><div class="eico">&#128717;</div><h2>No listings yet</h2><p>Open <strong>&#9881; Manage Listings</strong> to add your first item.</p></div>';
+    return;
+  }
+  const grid=document.createElement("div");
+  grid.className="grid";
+  filtered.forEach((p,i)=>{
+    const card=document.createElement("div");
+    card.className="card"+(p.sold?" sold":"");
+    card.style.animationDelay=(i*.04)+"s";
+    const first=p.media&&p.media[0];
+    const thumb=first?(first.type==="video"?'<video src="'+first.url+'" muted playsinline></video>':'<img src="'+first.url+'" alt="'+p.name+'" loading="lazy"/>'):'<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:2.5rem;">&#128230;</div>';
+    const badge=p.media&&p.media.length>1?'<span class="media-count">&#128247; '+p.media.length+'</span>':"";
+    const wl="https://wa.me/"+WA+"?text="+encodeURIComponent("Hi! I saw *"+p.name+"* for $"+parseFloat(p.price).toFixed(2)+" on Vinsmart. Is it still available?");
+    const sl="sms:"+TEL+"?body="+encodeURIComponent("Hi! I saw "+p.name+" for $"+parseFloat(p.price).toFixed(2)+" on Vinsmart. Is it still available?");
+    card.innerHTML='<div class="card-img" onclick="openModal(\''+p.id+'\')">'+thumb+badge+'<div class="sold-ov"><div class="sold-badge">SOLD</div></div></div><div class="card-body"><div class="card-name">'+p.name+'</div><div class="card-price">'+fmtPrice(p.price)+'</div><div class="card-meta"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> '+ago(p.listed)+'</div>'+(p.sold?'<div class="contact-btns"><span class="wa-btn">Sold Out</span><span class="sms-btn">Sold Out</span></div>':'<div class="contact-btns"><a class="wa-btn" href="'+wl+'" target="_blank" rel="noopener">&#128172; WhatsApp</a><a class="sms-btn" href="'+sl+'">&#128241; SMS</a></div>')+'<div class="admin-ctrl"><button class="mgmt-btn" onclick="toggleSold(\''+p.id+'\')">'+( p.sold?"&#8629; Available":"&#10003; Mark Sold")+'</button><button class="mgmt-btn del" onclick="deleteProduct(\''+p.id+'\')">&#128465; Remove</button></div></div>';
+    grid.appendChild(card);
+  });
+  wrap.innerHTML="";wrap.appendChild(grid);
+}
+
+// MODAL
+window.openModal=function(id){
+  const p=allProducts.find(x=>x.id===id);
+  if(!p)return;
+  curProd=p;galIdx=0;
+  refreshGallery();refreshInfo();
+  document.getElementById("modal-bg").classList.add("open");
+  document.body.style.overflow="hidden";
+};
+function refreshGallery(){
+  const main=document.getElementById("gal-main"),nav=document.getElementById("gal-nav"),media=curProd.media||[];
+  Array.from(main.children).forEach(c=>{if(!c.classList.contains("g-arr"))c.remove();});
+  if(!media.length)return;
+  const m=media[galIdx];
+  let el;
+  if(m.type==="video"){el=document.createElement("video");el.src=m.url;el.controls=true;el.style.maxWidth="100%";el.style.maxHeight="440px";}
+  else{el=document.createElement("img");el.src=m.url;el.alt=curProd.name;}
+  main.insertBefore(el,main.querySelector(".g-arr.next"));
+  if(curProd.sold){const st=document.createElement("div");st.className="sold-stamp";st.textContent="SOLD";main.appendChild(st);}
+  const multi=media.length>1;
+  document.getElementById("g-prev").style.display=multi?"flex":"none";
+  document.getElementById("g-next").style.display=multi?"flex":"none";
+  nav.innerHTML="";
+  media.forEach((med,i)=>{
+    const t=document.createElement("div");
+    t.className="g-thumb"+(i===galIdx?" active":"");
+    t.onclick=()=>{galIdx=i;refreshGallery();};
+    t.innerHTML=med.type==="video"?'<video src="'+med.url+'" muted></video>':'<img src="'+med.url+'" loading="lazy"/>';
+    nav.appendChild(t);
+  });
+  nav.style.display=multi?"flex":"none";
+}
+window.galStep=function(dir){galIdx=(galIdx+dir+curProd.media.length)%curProd.media.length;refreshGallery();};
+function refreshInfo(){
+  const p=curProd,info=document.getElementById("modal-info");
+  const wl="https://wa.me/"+WA+"?text="+encodeURIComponent("Hi! I saw *"+p.name+"* for $"+parseFloat(p.price).toFixed(2)+" on Vinsmart. Is it still available?");
+  const sl="sms:"+TEL+"?body="+encodeURIComponent("Hi! I saw "+p.name+" for $"+parseFloat(p.price).toFixed(2)+" on Vinsmart. Is it still available?");
+  const isAdmin=document.body.classList.contains("admin-mode");
+  info.innerHTML=(p.sold?'<span class="modal-sold-tag">SOLD OUT</span>':"")+
+    '<div class="modal-name">'+p.name+'</div>'+
+    '<div class="modal-price">'+fmtPrice(p.price)+'</div>'+
+    (usdSub(p.price)?'<div class="modal-price-usd">'+usdSub(p.price)+'</div>':"")+
+    '<div class="modal-meta">'+userCur.f+' '+userCur.n+' &nbsp;&middot;&nbsp; <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> '+ago(p.listed)+'</div>'+
+    (p.desc?'<div class="modal-desc">'+p.desc.replace(/\n/g,"<br>")+'</div>':"")+
+    '<hr class="modal-divider"/>'+
+    '<div class="modal-cta-title">Contact Seller to Buy</div>'+
+    '<div class="modal-btns">'+
+      '<a class="modal-wa'+(p.sold?" disabled":"")+'" href="'+(p.sold?"#":wl)+'" target="_blank" rel="noopener"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg> &#128172; Chat on WhatsApp</a>'+
+      '<a class="modal-sms'+(p.sold?" disabled":"")+'" href="'+(p.sold?"#":sl)+'">&#128241; Send SMS / Call</a>'+
+    '</div>'+
+    '<p class="modal-trust">&#128274; You\'ll be connected directly with the seller</p>'+
+    (isAdmin?'<hr class="modal-divider" style="margin-top:4px"/><button class="mgmt-btn" style="margin-top:4px" onclick="toggleSold(\''+p.id+'\')">'+( p.sold?"&#8629; Mark Available":"&#10003; Mark Sold")+'</button><button class="mgmt-btn del" style="margin-top:5px" onclick="deleteProduct(\''+p.id+'\')">&#128465; Remove Listing</button>':"");
+}
+window.closeModal=function(){
+  document.getElementById("modal-bg").classList.remove("open");
+  document.body.style.overflow="";curProd=null;
+  document.querySelectorAll("#modal video").forEach(v=>v.pause());
+};
+window.closeMod=function(e){if(e.target===document.getElementById("modal-bg"))closeModal();};
+
+let adminOpen=false;
+window.toggleAdmin=function(){
+  adminOpen=!adminOpen;
+  document.getElementById("admin-panel").classList.toggle("open",adminOpen);
+  document.body.classList.toggle("admin-mode",adminOpen);
+  document.getElementById("admin-btn").textContent=adminOpen?"&#10005; Close Panel":"&#9881; Manage Listings";
+};
+
+document.getElementById("search-input").addEventListener("input",()=>renderCards(allProducts));
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
+
+function ago(ts){
+  const d=Date.now()-ts,m=Math.floor(d/60000);
+  if(m<1)return"Just now";if(m<60)return m+"m ago";
+  const h=Math.floor(m/60);if(h<24)return h+"h ago";
+  const dy=Math.floor(h/24);return dy<30?dy+"d ago":new Date(ts).toLocaleDateString();
+}
+
+
+// ── OFFLINE CACHING ──────────────────────────────
+const CACHE_KEY = "vinsmart_offline_v1";
+
+// Save products to localStorage as offline cache
+function cacheProducts(prods){
+  try{ localStorage.setItem(CACHE_KEY, JSON.stringify(prods)); }catch(e){}
+}
+
+// Load cached products
+function loadCachedProducts(){
+  try{ return JSON.parse(localStorage.getItem(CACHE_KEY)||"[]"); }catch(e){ return []; }
+}
+
+// Online/offline detection
+function handleOnline(){
+  document.getElementById("offline-bar").classList.remove("show");
+  setSS("Reconnected — syncing…","spin");
+}
+
+function handleOffline(){
+  document.getElementById("offline-bar").classList.add("show");
+  setSS("Offline — showing cached listings","err");
+  // Show cached listings immediately
+  const cached = loadCachedProducts();
+  if(cached.length){
+    allProducts = cached;
+    renderCards(allProducts);
+  }
+}
+
+window.addEventListener("online",  handleOnline);
+window.addEventListener("offline", handleOffline);
+
+// Check initial state
+if(!navigator.onLine){
+  handleOffline();
+}
+
+// Register service worker for asset caching (only works when hosted via https)
+if("serviceWorker" in navigator){
+  const swCode = `
+const CACHE = "vinsmart-sw-v1";
+const ASSETS = ["/"];
+self.addEventListener("install", e => {
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
+  self.skipWaiting();
+});
+self.addEventListener("activate", e => {
+  e.waitUntil(caches.keys().then(keys =>
+    Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
+  ));
+  self.clients.claim();
+});
+self.addEventListener("fetch", e => {
+  if(e.request.method !== "GET") return;
+  e.respondWith(
+    caches.open(CACHE).then(cache =>
+      fetch(e.request).then(res => {
+        cache.put(e.request, res.clone());
+        return res;
+      }).catch(() => caches.match(e.request))
+    )
+  );
+});
+  `.trim();
+  const blob = new Blob([swCode], {type:"text/javascript"});
+  const swUrl = URL.createObjectURL(blob);
+  navigator.serviceWorker.register(swUrl).catch(()=>{});
+}
+
+// BOOT — credentials hardcoded, launch directly
+launchApp({cloudName:"dm67vqfhl", preset:"qjgxmrhz"});
+</script>
+
+<script>
+// ══════════════════════════════════════════════
+//  VINSMART CHATBOT — plain script (not module)
+// ══════════════════════════════════════════════
+const WA_LINK  = "https://wa.me/2348031114594";
+const SMS_LINK = "sms:+2348031114594";
+let chatOpen=false, chatStage="start";
+const BOT_FLOWS={start:{msg:"👋 Hi! Welcome to <strong>Vinsmart</strong>. How can I help you today?",opts:[{label:"🔍 Request a specific item",next:"custom_item"},{label:"📦 Question about a listed item",next:"existing"},{label:"🚚 Delivery & shipping info",next:"delivery"},{label:"😟 I have a complaint",next:"complaint"},{label:"💬 Speak directly with the seller",next:"contact_prompt"}]},custom_item:{msg:"Sure! Tell me what item you're looking for. What product do you need?",input:true},existing:{msg:"What would you like to know about a listed item?",opts:[{label:"💰 Price of an item",next:"price_q"},{label:"✅ Is an item still available?",next:"availability"},{label:"📐 Size, colour or condition",next:"specs_q"},{label:"💬 Talk directly to seller",next:"contact_prompt"},{label:"🔙 Back",next:"start"}]},delivery:{msg:"We offer local and international delivery. Costs depend on your location and the item.",opts:[{label:"💬 Ask seller about delivery",next:"contact_prompt"},{label:"🌍 Do you ship internationally?",next:"intl_shipping"},{label:"🔙 Back",next:"start"}]},intl_shipping:{msg:"Yes! Vinsmart ships internationally. Contact the seller to get a shipping quote for your location.",opts:[{label:"💬 Get a shipping quote",next:"contact_prompt"},{label:"🔙 Back",next:"start"}]},complaint:{msg:"I'm sorry to hear that! What is your complaint about?",opts:[{label:"📦 Item not as described",next:"complaint_detail"},{label:"🚚 Delivery problem",next:"complaint_detail"},{label:"💳 Payment issue",next:"complaint_detail"},{label:"🔙 Back",next:"start"}]},complaint_detail:{msg:"I'm sorry for the inconvenience. For the fastest resolution, speak directly with the seller.",opts:[{label:"💬 Chat on WhatsApp",next:"go_whatsapp"},{label:"📱 Call or SMS",next:"go_sms"},{label:"🔙 Back to menu",next:"start"}]},price_q:{msg:"Prices are shown on each product card in your local currency. Need to ask about a specific price?",opts:[{label:"💬 Ask seller about price",next:"contact_prompt"},{label:"🔙 Back",next:"existing"}]},availability:{msg:"Items showing normally are available. SOLD items are gone. Click any item for full details.",opts:[{label:"💬 Ask seller",next:"contact_prompt"},{label:"🔙 Back",next:"existing"}]},specs_q:{msg:"Specific details like size, colour and condition are best confirmed directly with the seller.",opts:[{label:"💬 Ask seller for details",next:"contact_prompt"},{label:"🔙 Back",next:"existing"}]},contact_prompt:{msg:"How would you like to reach the seller? 👇",opts:[{label:"💬 Chat on WhatsApp (recommended)",next:"go_whatsapp"},{label:"📱 Send SMS or Call",next:"go_sms"},{label:"🔙 Back to menu",next:"start"}]},go_whatsapp:{action:"whatsapp"},go_sms:{action:"sms"}};
+function toggleChat(){chatOpen=!chatOpen;var box=document.getElementById("chatbox");if(chatOpen){box.style.display="flex";var lbl=document.getElementById("chat-label");if(lbl)lbl.style.display="none";if(document.getElementById("chat-msgs").children.length===0){setTimeout(function(){goStage("start");},300);}}else{box.style.display="none";}}
+function addMsg(text,who,delay,cb){delay=delay||0;var msgs=document.getElementById("chat-msgs");if(delay>0){var typing=document.createElement("div");typing.className="msg typing bot";typing.id="typing-indicator";typing.innerHTML='<div class="typing-dots"><span></span><span></span><span></span></div>';msgs.appendChild(typing);msgs.scrollTop=msgs.scrollHeight;setTimeout(function(){var t=document.getElementById("typing-indicator");if(t)t.remove();var m=document.createElement("div");m.className="msg "+who;m.innerHTML=text;msgs.appendChild(m);msgs.scrollTop=msgs.scrollHeight;if(cb)cb();},delay);}else{var m=document.createElement("div");m.className="msg "+who;m.innerHTML=text;msgs.appendChild(m);msgs.scrollTop=msgs.scrollHeight;if(cb)cb();}}
+function setOptions(opts){var op=document.getElementById("chat-options");op.innerHTML="";op.style.display="flex";document.getElementById("chat-input-row").style.display="none";opts.forEach(function(o){var b=document.createElement("button");b.className="chat-opt";b.textContent=o.label;b.onclick=function(){pickOption(o);};op.appendChild(b);});}
+function showInput(){document.getElementById("chat-input-row").style.display="flex";document.getElementById("chat-options").style.display="none";setTimeout(function(){document.getElementById("chat-input").focus();},100);}
+function goStage(stageKey){chatStage=stageKey;var stage=BOT_FLOWS[stageKey];if(!stage)return;if(stage.action==="whatsapp"){addMsg("Opening WhatsApp now — you'll chat directly with the seller! 🟢","bot",500,function(){setOptions([{label:"🔙 Back to menu",next:"start"}]);setTimeout(function(){window.open(WA_LINK+"?text="+encodeURIComponent("Hi! I need help from Vinsmart support."),"_blank");},600);});return;}if(stage.action==="sms"){addMsg("Opening SMS now… 📱","bot",500,function(){setOptions([{label:"🔙 Back to menu",next:"start"}]);setTimeout(function(){window.location.href=SMS_LINK+"?body="+encodeURIComponent("Hi! I need help from Vinsmart support.");},600);});return;}addMsg(stage.msg,"bot",600,function(){if(stage.input){showInput();}else if(stage.opts){setOptions(stage.opts);}});}
+function pickOption(opt){var op=document.getElementById("chat-options");op.innerHTML="";var label=opt.label.replace(/^\S+\s/,"");addMsg(label,"user",0,function(){setTimeout(function(){goStage(opt.next);},400);});}
+function sendUserMsg(){var input=document.getElementById("chat-input");var text=input.value.trim();if(!text)return;input.value="";document.getElementById("chat-input-row").style.display="none";addMsg(text,"user",0,function(){if(chatStage==="custom_item"){var waText=encodeURIComponent("Hi! I'm looking for: *"+text+"*. Do you have this or can you source it?");setTimeout(function(){addMsg("Got it! I've noted your request for <strong>\""+text+"\"</strong>. Send this to the seller:","bot",700,function(){var op=document.getElementById("chat-options");op.innerHTML="";op.style.display="flex";op.innerHTML='<a class="chat-cta wa" href="'+WA_LINK+'?text='+waText+'" target="_blank">💬 Send via WhatsApp</a><a class="chat-cta sms" href="'+SMS_LINK+'?body='+waText+'">📱 Send via SMS</a><button class="chat-opt" onclick="goStage(\'start\')">🔙 Back to menu</button>';});},200);}});}
+</script>
+
+</body>
+</html>
