@@ -412,8 +412,8 @@ window.addEventListener("load", function(){
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import{getFirestore,collection,addDoc,onSnapshot,doc,updateDoc,deleteDoc,query,orderBy}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-const WA="2348031114594";
-const TEL="+2348031114594";
+const WA="12089926233";
+const TEL="+12089926233";
 const CFG_KEY="vs_cfg_v1";
 let db,allProducts=[],pendingFiles=[],curProd=null,galIdx=0;
 
@@ -768,8 +768,8 @@ launchApp({cloudName:"dm67vqfhl", preset:"qjgxmrhz"});
 // ══════════════════════════════════════════════
 //  RETURNSHOP CHATBOT — plain script (not module)
 // ══════════════════════════════════════════════
-const WA_LINK  = "https://wa.me/2348031114594";
-const SMS_LINK = "sms:+2348031114594";
+const WA_LINK  = "https://wa.me/12089926233";
+const SMS_LINK = "sms:+12089926233";
 let chatOpen=false, chatStage="start";
 const BOT_FLOWS={start:{msg:"👋 Hi! Welcome to <strong>Returnshop</strong>. How can I help you today?",opts:[{label:"🔍 Request a specific item",next:"custom_item"},{label:"📦 Question about a listed item",next:"existing"},{label:"🚚 Delivery & shipping info",next:"delivery"},{label:"😟 I have a complaint",next:"complaint"},{label:"💬 Speak directly with the seller",next:"contact_prompt"}]},custom_item:{msg:"Sure! Tell me what item you're looking for. What product do you need?",input:true},existing:{msg:"What would you like to know about a listed item?",opts:[{label:"💰 Price of an item",next:"price_q"},{label:"✅ Is an item still available?",next:"availability"},{label:"📐 Size, colour or condition",next:"specs_q"},{label:"💬 Talk directly to seller",next:"contact_prompt"},{label:"🔙 Back",next:"start"}]},delivery:{msg:"We offer local and international delivery. Costs depend on your location and the item.",opts:[{label:"💬 Ask seller about delivery",next:"contact_prompt"},{label:"🌍 Do you ship internationally?",next:"intl_shipping"},{label:"🔙 Back",next:"start"}]},intl_shipping:{msg:"Yes! Returnshop ships internationally. Contact the seller to get a shipping quote for your location.",opts:[{label:"💬 Get a shipping quote",next:"contact_prompt"},{label:"🔙 Back",next:"start"}]},complaint:{msg:"I'm sorry to hear that! What is your complaint about?",opts:[{label:"📦 Item not as described",next:"complaint_detail"},{label:"🚚 Delivery problem",next:"complaint_detail"},{label:"💳 Payment issue",next:"complaint_detail"},{label:"🔙 Back",next:"start"}]},complaint_detail:{msg:"I'm sorry for the inconvenience. For the fastest resolution, speak directly with the seller.",opts:[{label:"💬 Chat on WhatsApp",next:"go_whatsapp"},{label:"📱 Call or SMS",next:"go_sms"},{label:"🔙 Back to menu",next:"start"}]},price_q:{msg:"Prices are shown on each product card in your local currency. Need to ask about a specific price?",opts:[{label:"💬 Ask seller about price",next:"contact_prompt"},{label:"🔙 Back",next:"existing"}]},availability:{msg:"Items showing normally are available. SOLD items are gone. Click any item for full details.",opts:[{label:"💬 Ask seller",next:"contact_prompt"},{label:"🔙 Back",next:"existing"}]},specs_q:{msg:"Specific details like size, colour and condition are best confirmed directly with the seller.",opts:[{label:"💬 Ask seller for details",next:"contact_prompt"},{label:"🔙 Back",next:"existing"}]},contact_prompt:{msg:"How would you like to reach the seller? 👇",opts:[{label:"💬 Chat on WhatsApp (recommended)",next:"go_whatsapp"},{label:"📱 Send SMS or Call",next:"go_sms"},{label:"🔙 Back to menu",next:"start"}]},go_whatsapp:{action:"whatsapp"},go_sms:{action:"sms"}};
 function toggleChat(){chatOpen=!chatOpen;var box=document.getElementById("chatbox");if(chatOpen){box.style.display="flex";var lbl=document.getElementById("chat-label");if(lbl)lbl.style.display="none";if(document.getElementById("chat-msgs").children.length===0){setTimeout(function(){goStage("start");},300);}}else{box.style.display="none";}}
