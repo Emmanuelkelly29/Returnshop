@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Vinsmart – Shop Smart</title>
+<title>ReturnShop</title>
 <style>
 :root{
   --navy:#0a1f44;--navy2:#1a3a6e;--white:#fff;
@@ -230,17 +230,22 @@ footer strong{color:#fff;}
 
   <header>
     <div class="hdr">
-      <div class="logo-wrap">
-        <svg width="160" height="44" viewBox="0 0 160 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect width="44" height="44" rx="12" fill="#0a1f44"/>
-          <text x="22" y="30" text-anchor="middle" font-family="Times New Roman,Times,serif" font-size="22" font-weight="900" font-style="italic" fill="#c8a84b">V</text>
-          <circle cx="36" cy="10" r="4" fill="#c8a84b" opacity="0.9"/>
-          <circle cx="36" cy="10" r="2" fill="#fff"/>
-          <text x="54" y="20" font-family="Times New Roman,Times,serif" font-size="18" font-weight="900" font-style="italic" fill="#0a1f44">Vin</text><text x="82" y="20" font-family="Times New Roman,Times,serif" font-size="18" font-weight="900" fill="#c8a84b">smart</text>
-          <text x="54" y="36" font-family="Times New Roman,Times,serif" font-size="9" fill="#8899bb" letter-spacing="2">SHOP SMART</text>
-          <line x1="54" y1="23" x2="155" y2="23" stroke="#dde3f0" stroke-width="1"/>
-        </svg>
-      </div>
+      <div class="logo-wrap"><svg width="180" height="52" viewBox="0 0 180 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Icon: navy rounded square -->
+  <rect x="0" y="4" width="44" height="44" rx="11" fill="#0a1f44"/>
+  <!-- Shopping bag body -->
+  <rect x="9" y="23" width="25" height="19" rx="3.5" fill="white"/>
+  <!-- Bag handle -->
+  <path d="M15 23 C15 16 28 16 28 23" stroke="#c8a84b" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <!-- R letter inside bag -->
+  <text x="17" y="37" font-family="Times New Roman,serif" font-size="13" font-weight="900" font-style="italic" fill="#0a1f44">R</text>
+  <!-- Gold dot accent -->
+  <circle cx="37" cy="10" r="3.5" fill="#c8a84b"/>
+  <!-- Return& as one unit: Return in gold + tiny & in navy immediately after, no gap -->
+  <text x="54" y="22" font-family="Times New Roman,serif" font-size="19" font-weight="900" font-style="italic" fill="#c8a84b">Return<tspan font-size="9" fill="#0a1f44" dy="-4">&amp;</tspan></text>
+  <!-- Shop in navy, tight below -->
+  <text x="54" y="43" font-family="Times New Roman,serif" font-size="19" font-weight="900" font-style="italic" fill="#0a1f44">Shop</text>
+</svg></div>
       <div class="search-bar">
         <span>🔍</span>
         <input type="text" id="search-input" placeholder="Search products…"/>
@@ -254,7 +259,7 @@ footer strong{color:#fff;}
     <div id="grid-wrap"></div>
   </main>
 
-  <footer>&copy; 2025 <strong>Vinsmart</strong>. All rights reserved. Prices shown in your local currency at live exchange rates.</footer>
+  <footer>&copy; 2025 <strong>Returnshop</strong>. All rights reserved. Prices shown in your local currency at live exchange rates.</footer>
 
   <!-- BUYER MODAL -->
   <div id="modal-bg" onclick="closeMod(event)">
@@ -276,7 +281,7 @@ footer strong{color:#fff;}
   <div id="chat-label">Need help? Chat with us!</div>
 
   <!-- CHATBOT BUTTON (custom SVG icon) -->
-  <button id="chat-btn" onclick="toggleChat();hideChatLabel()" title="Chat with Vinsmart">
+  <button id="chat-btn" onclick="toggleChat();hideChatLabel()" title="Chat with Returnshop">
     <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
       <circle cx="32" cy="32" r="32" fill="#0a1f44"/>
       <circle cx="32" cy="32" r="28" stroke="#c8a84b" stroke-width="2" fill="none" opacity="0.4"/>
@@ -299,7 +304,7 @@ footer strong{color:#fff;}
         </svg>
       </div>
       <div class="chat-head-info">
-        <div class="chat-head-name">Vinsmart Support</div>
+        <div class="chat-head-name">Returnshop Support</div>
         <div class="chat-head-status">Online — reply in minutes</div>
       </div>
       <button class="chat-close" onclick="toggleChat()">&#10005;</button>
@@ -316,8 +321,8 @@ footer strong{color:#fff;}
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import{getFirestore,collection,getDocs,query,orderBy}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-const WA="12089926233";
-const TEL="+12089926233";
+const WA="2348031114594";
+const TEL="+2348031114594";
 const CFG_KEY="vs_cfg_v1";
 let db,allProducts=[],pendingFiles=[],curProd=null,galIdx=0;
 
@@ -466,8 +471,8 @@ function renderCards(prods){
     const first=p.media&&p.media[0];
     const thumb=first?(first.type==="video"?'<video src="'+first.url+'" muted playsinline></video>':'<img src="'+first.url+'" alt="'+p.name+'" loading="lazy"/>'):'<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:2.5rem;">&#128230;</div>';
     const badge=p.media&&p.media.length>1?'<span class="media-count">&#128247; '+p.media.length+'</span>':"";
-    const wl="https://wa.me/"+WA+"?text="+encodeURIComponent("Hi! I saw *"+p.name+"* for $"+parseFloat(p.price).toFixed(2)+" on Vinsmart. Is it still available?");
-    const sl="sms:"+TEL+"?body="+encodeURIComponent("Hi! I saw "+p.name+" for $"+parseFloat(p.price).toFixed(2)+" on Vinsmart. Is it still available?");
+    const wl="https://wa.me/"+WA+"?text="+encodeURIComponent("Hi! I saw *"+p.name+"* for $"+parseFloat(p.price).toFixed(2)+" on Returnshop. Is it still available?");
+    const sl="sms:"+TEL+"?body="+encodeURIComponent("Hi! I saw "+p.name+" for $"+parseFloat(p.price).toFixed(2)+" on Returnshop. Is it still available?");
     card.innerHTML='<div class="card-img" onclick="openModal(\''+p.id+'\')">'+thumb+badge+'<div class="sold-ov"><div class="sold-badge">SOLD</div></div></div><div class="card-body"><div class="card-name">'+p.name+'</div><div class="card-price">'+fmtPrice(p.price)+'</div><div class="card-meta"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> '+ago(p.listed)+'</div>'+(p.sold?'<div class="contact-btns"><span class="wa-btn">Sold Out</span><span class="sms-btn">Sold Out</span></div>':'<div class="contact-btns"><a class="wa-btn" href="'+wl+'" target="_blank" rel="noopener">&#128172; WhatsApp</a><a class="sms-btn" href="'+sl+'">&#128241; SMS</a></div>');
     grid.appendChild(card);
   });
@@ -509,8 +514,8 @@ function refreshGallery(){
 window.galStep=function(dir){galIdx=(galIdx+dir+curProd.media.length)%curProd.media.length;refreshGallery();};
 function refreshInfo(){
   const p=curProd,info=document.getElementById("modal-info");
-  const wl="https://wa.me/"+WA+"?text="+encodeURIComponent("Hi! I saw *"+p.name+"* for $"+parseFloat(p.price).toFixed(2)+" on Vinsmart. Is it still available?");
-  const sl="sms:"+TEL+"?body="+encodeURIComponent("Hi! I saw "+p.name+" for $"+parseFloat(p.price).toFixed(2)+" on Vinsmart. Is it still available?");
+  const wl="https://wa.me/"+WA+"?text="+encodeURIComponent("Hi! I saw *"+p.name+"* for $"+parseFloat(p.price).toFixed(2)+" on Returnshop. Is it still available?");
+  const sl="sms:"+TEL+"?body="+encodeURIComponent("Hi! I saw "+p.name+" for $"+parseFloat(p.price).toFixed(2)+" on Returnshop. Is it still available?");
   const isAdmin=false;
   info.innerHTML=(p.sold?'<span class="modal-sold-tag">SOLD OUT</span>':"")+
     '<div class="modal-name">'+p.name+'</div>'+
@@ -621,17 +626,17 @@ launchApp({cloudName:"dm67vqfhl", preset:"qjgxmrhz"});
 
 <script>
 // ══════════════════════════════════════════════
-//  VINSMART CHATBOT  — plain script (not module)
+//  RETURNSHOP CHATBOT  — plain script (not module)
 // ══════════════════════════════════════════════
-const WA_LINK  = "https://wa.me/12089926233";
-const SMS_LINK = "sms:+12089926233";
+const WA_LINK  = "https://wa.me/2348031114594";
+const SMS_LINK = "sms:+2348031114594";
 
 let chatOpen  = false;
 let chatStage = "start";
 
 const BOT_FLOWS = {
   start:{
-    msg:"👋 Hi! Welcome to <strong>Vinsmart</strong>. How can I help you today?",
+    msg:"👋 Hi! Welcome to <strong>Returnshop</strong>. How can I help you today?",
     opts:[
       {label:"🔍 Request a specific item",        next:"custom_item"},
       {label:"📦 Question about a listed item",   next:"existing"},
@@ -663,7 +668,7 @@ const BOT_FLOWS = {
     ]
   },
   intl_shipping:{
-    msg:"Yes! Vinsmart ships internationally. Contact the seller to get a shipping quote for your exact location.",
+    msg:"Yes! Returnshop ships internationally. Contact the seller to get a shipping quote for your exact location.",
     opts:[
       {label:"💬 Get a shipping quote",  next:"contact_prompt"},
       {label:"🔙 Back",                  next:"start"},
@@ -793,7 +798,7 @@ function goStage(stageKey){
     addMsg("Opening WhatsApp now — you'll chat directly with the seller! 🟢", "bot", 500, function(){
       setOptions([{label:"🔙 Back to menu", next:"start"}]);
       setTimeout(function(){
-        window.open(WA_LINK + "?text=" + encodeURIComponent("Hi! I need help from Vinsmart support."), "_blank");
+        window.open(WA_LINK + "?text=" + encodeURIComponent("Hi! I need help from Returnshop support."), "_blank");
       }, 600);
     });
     return;
@@ -802,7 +807,7 @@ function goStage(stageKey){
     addMsg("Opening SMS now… 📱", "bot", 500, function(){
       setOptions([{label:"🔙 Back to menu", next:"start"}]);
       setTimeout(function(){
-        window.location.href = SMS_LINK + "?body=" + encodeURIComponent("Hi! I need help from Vinsmart support.");
+        window.location.href = SMS_LINK + "?body=" + encodeURIComponent("Hi! I need help from Returnshop support.");
       }, 600);
     });
     return;
@@ -854,7 +859,3 @@ function sendUserMsg(){
 
 </body>
 </html>
-
-
-
-
