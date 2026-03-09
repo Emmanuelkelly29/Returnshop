@@ -211,6 +211,65 @@ footer strong{color:#fff;}
 </head>
 <body>
 
+<!-- ── ADMIN PASSWORD GATE ── -->
+<div id="pwd-gate" style="position:fixed;inset:0;background:#0a1f44;z-index:99999;display:flex;align-items:center;justify-content:center;font-family:'Times New Roman',serif;">
+  <div style="background:#fff;border-radius:18px;padding:40px 36px;width:340px;max-width:90vw;box-shadow:0 8px 40px rgba(0,0,0,0.3);text-align:center;">
+    <!-- Logo -->
+    <div style="margin-bottom:6px;">
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+        <rect x="0" y="0" width="48" height="48" rx="12" fill="#0a1f44"/>
+        <rect x="10" y="22" width="28" height="20" rx="4" fill="white"/>
+        <path d="M16 22 C16 14 32 14 32 22" stroke="#c8a84b" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <text x="19" y="38" font-family="Times New Roman,serif" font-size="14" font-weight="900" font-style="italic" fill="#0a1f44">R</text>
+        <circle cx="40" cy="8" r="4" fill="#c8a84b"/>
+      </svg>
+    </div>
+    <div style="font-size:1.3rem;font-weight:900;color:#0a1f44;margin-bottom:4px;font-style:italic;">ReturnShop</div>
+    <div style="font-size:.85rem;color:#666;margin-bottom:24px;">Admin Access Only</div>
+    <input id="pwd-input" type="password" placeholder="Enter admin password"
+      style="width:100%;padding:12px 16px;border:2px solid #dde3f0;border-radius:10px;font-family:'Times New Roman',serif;font-size:1rem;color:#0a1f44;outline:none;margin-bottom:10px;box-sizing:border-box;"
+      onkeydown="if(event.key==='Enter')checkPwd()"/>
+    <div id="pwd-err" style="color:#e74c3c;font-size:.82rem;margin-bottom:10px;display:none;">❌ Incorrect password. Try again.</div>
+    <button onclick="checkPwd()"
+      style="width:100%;padding:13px;background:#0a1f44;color:#fff;border:none;border-radius:10px;font-family:'Times New Roman',serif;font-size:1rem;font-weight:700;cursor:pointer;letter-spacing:.03em;">
+      🔓 Enter Admin Panel
+    </button>
+  </div>
+</div>
+
+<script>
+// ── ADMIN PASSWORD ──
+// Change the password below to whatever you want
+const ADMIN_PASSWORD = "returnshop2025";
+
+function checkPwd(){
+  const val = document.getElementById("pwd-input").value;
+  const err = document.getElementById("pwd-err");
+  if(val === ADMIN_PASSWORD){
+    document.getElementById("pwd-gate").style.display = "none";
+    sessionStorage.setItem("rs_admin_auth", "1");
+  } else {
+    err.style.display = "block";
+    document.getElementById("pwd-input").value = "";
+    document.getElementById("pwd-input").focus();
+  }
+}
+
+// If already authenticated this session, skip gate
+if(sessionStorage.getItem("rs_admin_auth") === "1"){
+  document.getElementById("pwd-gate").style.display = "none";
+}
+
+// Focus input on load
+window.addEventListener("load", function(){
+  var gate = document.getElementById("pwd-gate");
+  if(gate && gate.style.display !== "none"){
+    document.getElementById("pwd-input").focus();
+  }
+});
+</script>
+
+
 <!-- MAIN APP (hidden until configured) -->
 <div id="app">
   <div id="sync-bar"><span class="sdot spin" id="sdot"></span><span id="sync-msg">Connecting…</span></div>
