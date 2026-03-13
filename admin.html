@@ -104,6 +104,10 @@ body.admin-mode .admin-ctrl{display:block;}
 .mgmt-btn:hover{border-color:var(--navy);color:var(--navy);}
 .mgmt-btn.del{color:#c0392b;border-color:#f5c6c6;}
 .mgmt-btn.del:hover{border-color:#c0392b;}
+.mgmt-btn.edit{color:#1a6e3a;border-color:#b7e4c7;}
+.mgmt-btn.edit:hover{border-color:#1a6e3a;}
+#adm-form-title{font-size:1rem;font-weight:700;color:var(--navy);margin-bottom:14px;font-family:var(--font);}
+#cancel-edit-btn{display:none;}
 /* EMPTY */
 .empty{text-align:center;padding:80px 20px;}
 .empty .eico{font-size:3rem;margin-bottom:14px;}
@@ -240,7 +244,7 @@ footer strong{color:#fff;}
 <script>
 // ── ADMIN PASSWORD ──
 // Change the password below to whatever you want
-const ADMIN_PASSWORD = "returnshop1114";
+const ADMIN_PASSWORD = "returnshop2025";
 
 function checkPwd(){
   const val = document.getElementById("pwd-input").value;
@@ -335,9 +339,10 @@ window.addEventListener("load", function(){
         </div>
       </div>
       <div class="adm-btns">
+        <div id="adm-form-title">➕ Add New Listing</div>
         <button class="btn-gold" id="add-btn" onclick="addProduct()">+ Add Listing</button>
+        <button class="btn-outline" id="cancel-edit-btn" onclick="cancelEdit()">✕ Cancel Edit</button>
         <button class="btn-outline" onclick="clearForm()">✕ Clear</button>
-        
       </div>
       <p class="adm-note">💡 Photos &amp; videos upload to Cloudinary — listings sync live to every device worldwide. Prices are entered in USD and shown in each buyer's local currency.</p>
     </div>
@@ -412,8 +417,8 @@ window.addEventListener("load", function(){
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import{getFirestore,collection,addDoc,onSnapshot,doc,updateDoc,deleteDoc,query,orderBy}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-const WA="12089926233";
-const TEL="+12089926233";
+const WA="2348031114594";
+const TEL="+2348031114594";
 const CFG_KEY="vs_cfg_v1";
 let db,allProducts=[],pendingFiles=[],curProd=null,galIdx=0;
 
@@ -539,6 +544,8 @@ window.handleMedia=function(e){
   });
 };
 window.removeFile=function(i){pendingFiles.splice(i,1);window.handleMedia({target:{files:pendingFiles}});};
+let editingId = null;
+
 window.clearForm=function(){
   ["a-name","a-price","a-desc"].forEach(id=>document.getElementById(id).value="");
   document.getElementById("a-media").value="";
@@ -547,19 +554,105 @@ window.clearForm=function(){
   document.getElementById("upload-prog-wrap").style.display="none";
 };
 
-// ADD PRODUCT
+window.cancelEdit = function(){
+  editingId = null;
+  clearForm();
+  document.getElementById("adm-form-title").textContent = "➕ Add New Listing";
+  document.getElementById("add-btn").textContent = "+ Add Listing";
+  document.getElementById("cancel-edit-btn").style.display = "none";
+  document.getElementById("admin-panel").classList.remove("open");
+};
+
+window.editProduct = function(id){
+  const p = allProducts.find(x=>x.id===id);
+  if(!p) return;
+  editingId = id;
+
+  // Open admin panel and scroll to it
+  document.getElementById("admin-panel").classList.add("open");
+  document.getElementById("admin-panel").scrollIntoView({behavior:"smooth"});
+
+  // Fill form with existing data
+  document.getElementById("a-name").value  = p.name  || "";
+  document.getElementById("a-price").value = p.price || "";
+  document.getElementById("a-desc").value  = p.desc  || "";
+
+  // Show existing media thumbnails in preview strip
+  const strip = document.getElementById("preview-strip");
+  strip.innerHTML = "";
+  pendingFiles = []; // clear new uploads — we'll keep existing media unless they add new ones
+  if(p.media && p.media.length){
+    p.media.forEach((m,i)=>{
+      const wrap = document.createElement("div");
+      wrap.className = "prev-item";
+      wrap.style.cssText = "position:relative;display:inline-block;margin:4px;";
+      const el = m.type==="video"
+        ? `<video src="${m.url}" style="width:70px;height:70px;object-fit:cover;border-radius:8px;" muted></video>`
+        : `<img src="${m.url}" style="width:70px;height:70px;object-fit:cover;border-radius:8px;"/>`;
+      wrap.innerHTML = el + `<span style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,.55);color:#fff;border-radius:50%;width:18px;height:18px;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;" onclick="removeExistingMedia(${i},'${id}')">✕</span>`;
+      strip.appendChild(wrap);
+    });
+    strip.innerHTML += `<p style="font-size:.75rem;color:#8899bb;margin-top:6px;">Existing photos shown above. Upload new ones below to add more.</p>`;
+  }
+
+  // Update form UI to edit mode
+  document.getElementById("adm-form-title").textContent = "✏️ Editing: " + p.name;
+  document.getElementById("add-btn").textContent = "💾 Save Changes";
+  document.getElementById("cancel-edit-btn").style.display = "inline-block";
+};
+
+window.removeExistingMedia = async function(idx, id){
+  if(!confirm("Remove this photo/video from the listing?")) return;
+  const p = allProducts.find(x=>x.id===id);
+  if(!p) return;
+  const updated = [...p.media];
+  updated.splice(idx, 1);
+  await updateDoc(doc(db,"products",id), {media: updated});
+  // refresh edit form
+  editProduct(id);
+};
+
+// ADD / EDIT PRODUCT
 window.addProduct=async function(){
   const name=document.getElementById("a-name").value.trim();
   const price=parseFloat(document.getElementById("a-price").value);
   const desc=document.getElementById("a-desc").value.trim();
   if(!name){alert("Please enter a product name.");return;}
   if(isNaN(price)||price<=0){alert("Please enter a valid USD price.");return;}
-  if(!pendingFiles.length){alert("Please upload at least one photo or video.");return;}
+
   const btn=document.getElementById("add-btn");
-  btn.disabled=true;btn.textContent="Uploading…";
   const pw=document.getElementById("upload-prog-wrap");
   const pb=document.getElementById("prog-bar");
   const pt=document.getElementById("upload-prog-txt");
+
+  // ── EDIT MODE ──
+  if(editingId){
+    btn.disabled=true; btn.textContent="Saving…";
+    try{
+      const existing = allProducts.find(x=>x.id===editingId);
+      let media = existing ? [...(existing.media||[])] : [];
+      // Upload any new files added
+      if(pendingFiles.length){
+        pw.style.display="block";
+        for(let i=0;i<pendingFiles.length;i++){
+          pt.textContent="Uploading new file "+(i+1)+" of "+pendingFiles.length+"…";
+          const r=await uploadFile(pendingFiles[i],pct=>{pb.style.width=(((i+pct)/pendingFiles.length)*100)+"%";});
+          media.push(r);
+        }
+      }
+      pt.textContent="Saving changes…";
+      await updateDoc(doc(db,"products",editingId),{name,price,desc,media});
+      alert("✅ Listing updated successfully!");
+      cancelEdit();
+      pw.style.display="none"; pb.style.width="0%";
+    }catch(e){alert("Save error: "+e.message);console.error(e);}
+    finally{btn.disabled=false; btn.textContent="💾 Save Changes";}
+    return;
+  }
+
+  // ── ADD MODE ──
+  if(!pendingFiles.length){alert("Please upload at least one photo or video.");return;}
+  btn.disabled=true;btn.textContent="Uploading…";
   pw.style.display="block";
   try{
     const media=[];
@@ -605,7 +698,7 @@ function renderCards(prods){
     const badge=p.media&&p.media.length>1?'<span class="media-count">&#128247; '+p.media.length+'</span>':"";
     const wl="https://wa.me/"+WA+"?text="+encodeURIComponent("Hi! I saw *"+p.name+"* for $"+parseFloat(p.price).toFixed(2)+" on Returnshop. Is it still available?");
     const sl="sms:"+TEL+"?body="+encodeURIComponent("Hi! I saw "+p.name+" for $"+parseFloat(p.price).toFixed(2)+" on Returnshop. Is it still available?");
-    card.innerHTML='<div class="card-img" onclick="openModal(\''+p.id+'\')">'+thumb+badge+'<div class="sold-ov"><div class="sold-badge">SOLD</div></div></div><div class="card-body"><div class="card-name">'+p.name+'</div><div class="card-price">'+fmtPrice(p.price)+'</div><div class="card-meta"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> '+ago(p.listed)+'</div>'+(p.sold?'<div class="contact-btns"><span class="wa-btn">Sold Out</span><span class="sms-btn">Sold Out</span></div>':'<div class="contact-btns"><a class="wa-btn" href="'+wl+'" target="_blank" rel="noopener">&#128172; WhatsApp</a><a class="sms-btn" href="'+sl+'">&#128241; SMS</a></div>')+'<div class="admin-ctrl"><button class="mgmt-btn" onclick="toggleSold(\''+p.id+'\')">'+( p.sold?"&#8629; Available":"&#10003; Mark Sold")+'</button><button class="mgmt-btn del" onclick="deleteProduct(\''+p.id+'\')">&#128465; Remove</button></div></div>';
+    card.innerHTML='<div class="card-img" onclick="openModal(\''+p.id+'\')">'+thumb+badge+'<div class="sold-ov"><div class="sold-badge">SOLD</div></div></div><div class="card-body"><div class="card-name">'+p.name+'</div><div class="card-price">'+fmtPrice(p.price)+'</div><div class="card-meta"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> '+ago(p.listed)+'</div>'+(p.sold?'<div class="contact-btns"><span class="wa-btn">Sold Out</span><span class="sms-btn">Sold Out</span></div>':'<div class="contact-btns"><a class="wa-btn" href="'+wl+'" target="_blank" rel="noopener">&#128172; WhatsApp</a><a class="sms-btn" href="'+sl+'">&#128241; SMS</a></div>')+'<div class="admin-ctrl"><button class="mgmt-btn edit" onclick="editProduct(\''+p.id+'\')">&#9998; Edit</button><button class="mgmt-btn" onclick="toggleSold(\''+p.id+'\')">'+( p.sold?"&#8629; Available":"&#10003; Mark Sold")+'</button><button class="mgmt-btn del" onclick="deleteProduct(\''+p.id+'\')">&#128465; Remove</button></div></div>';
     grid.appendChild(card);
   });
   wrap.innerHTML="";wrap.appendChild(grid);
@@ -768,8 +861,8 @@ launchApp({cloudName:"dm67vqfhl", preset:"qjgxmrhz"});
 // ══════════════════════════════════════════════
 //  RETURNSHOP CHATBOT — plain script (not module)
 // ══════════════════════════════════════════════
-const WA_LINK  = "https://wa.me/12089926233";
-const SMS_LINK = "sms:+12089926233";
+const WA_LINK  = "https://wa.me/2348031114594";
+const SMS_LINK = "sms:+2348031114594";
 let chatOpen=false, chatStage="start";
 const BOT_FLOWS={start:{msg:"👋 Hi! Welcome to <strong>Returnshop</strong>. How can I help you today?",opts:[{label:"🔍 Request a specific item",next:"custom_item"},{label:"📦 Question about a listed item",next:"existing"},{label:"🚚 Delivery & shipping info",next:"delivery"},{label:"😟 I have a complaint",next:"complaint"},{label:"💬 Speak directly with the seller",next:"contact_prompt"}]},custom_item:{msg:"Sure! Tell me what item you're looking for. What product do you need?",input:true},existing:{msg:"What would you like to know about a listed item?",opts:[{label:"💰 Price of an item",next:"price_q"},{label:"✅ Is an item still available?",next:"availability"},{label:"📐 Size, colour or condition",next:"specs_q"},{label:"💬 Talk directly to seller",next:"contact_prompt"},{label:"🔙 Back",next:"start"}]},delivery:{msg:"We offer local and international delivery. Costs depend on your location and the item.",opts:[{label:"💬 Ask seller about delivery",next:"contact_prompt"},{label:"🌍 Do you ship internationally?",next:"intl_shipping"},{label:"🔙 Back",next:"start"}]},intl_shipping:{msg:"Yes! Returnshop ships internationally. Contact the seller to get a shipping quote for your location.",opts:[{label:"💬 Get a shipping quote",next:"contact_prompt"},{label:"🔙 Back",next:"start"}]},complaint:{msg:"I'm sorry to hear that! What is your complaint about?",opts:[{label:"📦 Item not as described",next:"complaint_detail"},{label:"🚚 Delivery problem",next:"complaint_detail"},{label:"💳 Payment issue",next:"complaint_detail"},{label:"🔙 Back",next:"start"}]},complaint_detail:{msg:"I'm sorry for the inconvenience. For the fastest resolution, speak directly with the seller.",opts:[{label:"💬 Chat on WhatsApp",next:"go_whatsapp"},{label:"📱 Call or SMS",next:"go_sms"},{label:"🔙 Back to menu",next:"start"}]},price_q:{msg:"Prices are shown on each product card in your local currency. Need to ask about a specific price?",opts:[{label:"💬 Ask seller about price",next:"contact_prompt"},{label:"🔙 Back",next:"existing"}]},availability:{msg:"Items showing normally are available. SOLD items are gone. Click any item for full details.",opts:[{label:"💬 Ask seller",next:"contact_prompt"},{label:"🔙 Back",next:"existing"}]},specs_q:{msg:"Specific details like size, colour and condition are best confirmed directly with the seller.",opts:[{label:"💬 Ask seller for details",next:"contact_prompt"},{label:"🔙 Back",next:"existing"}]},contact_prompt:{msg:"How would you like to reach the seller? 👇",opts:[{label:"💬 Chat on WhatsApp (recommended)",next:"go_whatsapp"},{label:"📱 Send SMS or Call",next:"go_sms"},{label:"🔙 Back to menu",next:"start"}]},go_whatsapp:{action:"whatsapp"},go_sms:{action:"sms"}};
 function toggleChat(){chatOpen=!chatOpen;var box=document.getElementById("chatbox");if(chatOpen){box.style.display="flex";var lbl=document.getElementById("chat-label");if(lbl)lbl.style.display="none";if(document.getElementById("chat-msgs").children.length===0){setTimeout(function(){goStage("start");},300);}}else{box.style.display="none";}}
