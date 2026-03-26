@@ -1,9 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html>m having ia<html lang="en">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>ReturnShop</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='47' fill='%231a3a6e'/%3E%3Cpath d='M30 35 h40 v35 h-40 z' fill='%23c8a84b'/%3E%3Ctext x='50' y='63' font-size='46' text-anchor='middle' fill='white' font-family='Times New Roman'%3ER%3C/text%3E%3C/svg%3E" />
 <style>
 :root{
   --navy:#0a1f44;--navy2:#1a3a6e;--white:#fff;
@@ -273,6 +273,36 @@ window.addEventListener("load", function(){
 });
 </script>
 
+<!-- SETUP SCREEN -->
+<div id="setup" style="position:fixed;inset:0;background:#0a1f44;z-index:999;display:flex;align-items:center;justify-content:center;font-family:'Times New Roman',serif;">
+  <div class="setup-box" style="background:#fff;border-radius:18px;padding:40px 36px;width:400px;max-width:90vw;box-shadow:0 8px 40px rgba(0,0,0,0.3);text-align:center;">
+    <div style="margin-bottom:6px;">
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+        <rect x="0" y="0" width="48" height="48" rx="12" fill="#0a1f44"/>
+        <rect x="10" y="22" width="28" height="20" rx="4" fill="white"/>
+        <path d="M16 22 C16 14 32 14 32 22" stroke="#c8a84b" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <text x="19" y="38" font-family="Times New Roman,serif" font-size="14" font-weight="900" font-style="italic" fill="#0a1f44">R</text>
+        <circle cx="40" cy="8" r="4" fill="#c8a84b"/>
+      </svg>
+    </div>
+    <div style="font-size:1.3rem;font-weight:900;color:#0a1f44;margin-bottom:4px;font-style:italic;">ReturnShop</div>
+    <div style="font-size:.85rem;color:#666;margin-bottom:24px;">Setup Required</div>
+    <div style="text-align:left;margin-bottom:20px;">
+      <label style="display:block;font-size:.9rem;font-weight:700;color:#0a1f44;margin-bottom:6px;">Cloudinary Cloud Name</label>
+      <input id="cfg-cloudName" type="text" placeholder="e.g. yourcloudname"
+        style="width:100%;padding:12px 16px;border:2px solid #dde3f0;border-radius:10px;font-family:'Times New Roman',serif;font-size:1rem;color:#0a1f44;outline:none;margin-bottom:10px;box-sizing:border-box;"/>
+      <label style="display:block;font-size:.9rem;font-weight:700;color:#0a1f44;margin-bottom:6px;">Upload Preset</label>
+      <input id="cfg-preset" type="text" placeholder="e.g. unsigned_preset"
+        style="width:100%;padding:12px 16px;border:2px solid #dde3f0;border-radius:10px;font-family:'Times New Roman',serif;font-size:1rem;color:#0a1f44;outline:none;margin-bottom:10px;box-sizing:border-box;"/>
+    </div>
+    <div id="setup-err" style="color:#e74c3c;font-size:.82rem;margin-bottom:10px;display:none;"></div>
+    <button onclick="saveConfig()"
+      style="width:100%;padding:13px;background:#0a1f44;color:#fff;border:none;border-radius:10px;font-family:'Times New Roman',serif;font-size:1rem;font-weight:700;cursor:pointer;letter-spacing:.03em;">
+      🚀 Launch App
+    </button>
+    <div style="font-size:.75rem;color:#888;margin-top:16px;">Images are uploaded to Cloudinary for fast global delivery.</div>
+  </div>
+</div>
 
 <!-- MAIN APP (hidden until configured) -->
 <div id="app">
@@ -853,8 +883,13 @@ self.addEventListener("fetch", e => {
   navigator.serviceWorker.register(swUrl).catch(()=>{});
 }
 
-// BOOT — credentials hardcoded, launch directly
-launchApp({cloudName:"dm67vqfhl", preset:"qjgxmrhz"});
+// BOOT — check for config, show setup if needed
+const cfg = loadCfg();
+if(cfg){
+  launchApp(cfg);
+} else {
+  document.getElementById("setup").style.display = "flex";
+}
 </script>
 
 <script>
