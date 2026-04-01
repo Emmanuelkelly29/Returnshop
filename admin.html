@@ -274,7 +274,7 @@ window.addEventListener("load", function(){
 </script>
 
 <!-- SETUP SCREEN -->
-<div id="setup" style="position:fixed;inset:0;background:#0a1f44;z-index:999;display:flex;align-items:center;justify-content:center;font-family:'Times New Roman',serif;">
+<div id="setup" style="position:fixed;inset:0;background:#0a1f44;z-index:999;display:none;align-items:center;justify-content:center;font-family:'Times New Roman',serif;">
   <div class="setup-box" style="background:#fff;border-radius:18px;padding:40px 36px;width:400px;max-width:90vw;box-shadow:0 8px 40px rgba(0,0,0,0.3);text-align:center;">
     <div style="margin-bottom:6px;">
       <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
@@ -883,13 +883,8 @@ self.addEventListener("fetch", e => {
   navigator.serviceWorker.register(swUrl).catch(()=>{});
 }
 
-// BOOT — check for config, show setup if needed
-const cfg = loadCfg();
-if(cfg){
-  launchApp(cfg);
-} else {
-  document.getElementById("setup").style.display = "flex";
-}
+// BOOT — launch directly with default Cloudinary credentials
+launchApp({cloudName:"dm67vqfhl", preset:"qjgxmrhz"});
 </script>
 
 <script>
